@@ -1,25 +1,23 @@
 # Extracting metadata # {#metadata}
 
-The root node from which all members of a collection can be found can be discovered through the predicate `tree:view`.
-The object of the `tree:view` triple will contain a root node from which all elements in the collection can be retrieved.
+The object of the `tree:view` property is a root node from where all elements in the collection can be reached.
 
-When the current page is a `tree:Node`, there MUST be a property linking the current page URL to the URI of the `tree:Collection`. Three properties may be used:
- 1. `<collection> tree:view <currentPageUrl> .`<br/>May be used *only* in the case when the entire `tree:Collection` can be found starting from the current node.
- 2. `<collection> void:subset <currentPageUrl> .`<br/>When the node is not a root node, but still a subset of the collection.
- 3. `<currentPageUrl> dcterms:isPartOf <collection> .`<br/>The reverse property of 2.
+When the current page is an instance of the `tree:Node` class, there MUST be a property linking the current page URL to the URI of the `tree:Collection`. Three properties may be used:
+ 1. `<collection> tree:view <currentPageUrl> .`<br/>When the entire `tree:Collection` can be reached starting from the current node, i.e. this node is a root node.
+ 2. `<currentPageUrl> dcterms:isPartOf <collection> .`<br/>When the node is not a root node, but still contains a subset of the collection.
 
 ## Multiple Collections ## {#multiple-collections}
 
-When multiple collections are found by a client, it can choose to prune the collections based on the `tree:shape` property.
+The contents of different collections can be disambiguated using the `tree:shape` property, defining to which shape all the collection's members adhere to.
 Therefore a data publisher SHOULD annotate a `tree:Collection` instance with a SHACL shape.
 The `tree:shape` points to a SHACL description of the shape (`sh:NodeShape`).
 
-Note: the shape can be a blank node, or a named node on which you should follow your nose when it is defined at a different HTTP URL.
+Note: the shape can be a blank node, or a named node containing a dereferenceable URL.
 
 ## Multiple views ## {#multiple-views}
 
-Multiple views MAY be provided, and a TREE client MUST traverse all objects of `tree:view` linked to this particular collection.
-Every entity linked from `tree:view` MUST be an entry point to retrieve **all** members of the collection.
+Multiple views for a single collection MAY be provided, and a TREE client MUST traverse all objects of `tree:view` linked to this particular collection.
+Every entity linked from `tree:view` MUST be an root node.
 
 Note: How a client picks the right view is use-case specific. In order to fetch all members, one can be chosen at random. In order to prioritize a specific view, the relations and search forms in the root nodes can be studied for their relation types, path or remaining items.
 
@@ -27,7 +25,7 @@ Note: How a client picks the right view is use-case specific. In order to fetch 
 
 ### DCAT ### {#dcat}
 
-[[!VOCAB-DCAT-2]] is the standard for Open Data Portals by W3C. In order to find TREE compliant datasets in data portals, there SHOULD be a `dcat:accessURL` from the `dcat:Distribution` to the entrypoint where the `tree:Collection`s are described. Furthermore, there SHOULD be a `dct:conformsTo` this URI: `https://w3id.org/tree`.
+[[!VOCAB-DCAT-2]] is the standard for Open Data Portals by W3C. In order to find TREE compliant datasets in data portals, there SHOULD be a `dcat:accessURL` from the `dcat:Distribution` to the entrypoint where the `tree:Collection`s are described. Furthermore, there SHOULD be a `dct:conformsTo` containing this URI: `https://w3id.org/tree`.
 
 ### Hydra ### {#hydra}
 
@@ -46,7 +44,7 @@ Instead of `dcterms:isPartOf`, also `as:partOf` can be used to indicate that the
 While Hydra and TREE link to the members of the collection by using the specific collection as a subject, Activity Streams 2.0 (AS) indicates a member starting from the page URL.
 Therefore, when using AS collections, a client implementation should gather the members from the `tree:Node` or `as:CollectionPage` instead.
 
-`as:totalItems` can be used to indicate the total amount of elements in the collection.
+`as:totalItems` can be used to indicate the total amount of members in the collection.
 
 AS paging controls such as first, last, next and previous MUST be ignored.
 
@@ -58,7 +56,7 @@ Members can be found through `ldp:contains`, and/or through the indirect `ldp:me
 
 If this container is paged by the [[!ldp-paging]] (chapter 7) spec, then this MUST be ignored.
 
-If there is an ordering, this MUST be ignored by TREE clients (the relations contain all necessary information for pruning).
+If there is an ordering, this MUST be ignored by TREE clients.
 
 ### Shape trees ### {#shapetrees}
 
